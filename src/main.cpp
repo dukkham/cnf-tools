@@ -68,6 +68,31 @@ std::vector<int> convertFromBits(std::vector<std::string> message, int start_ind
 
 }
 
+std::vector<int> convertFromBitsWithVector(std::vector<std::string> message, std::vector<int> vec)
+{
+	// xsel -b -i
+	std::vector<int> message_vars;
+
+	if (message.size() == vec.size()) {
+
+		// std::ofstream outfile("code.alg");
+		for ( int i = 0; i < message.size(); i++ )
+		{
+			int sign = ( message[i] == "0" )? -1: 1;
+			int val = ( vec[i] ) * sign;
+			// cout << "[" << i << "]"; //DEBUG
+			message_vars.push_back(val);
+			std::cout << message_vars[i] << " 0\n"; //TODO: end_of_line_formst = 
+			// outfile << message_vars[i] << " 0\n"; //TODO: end_of_line_formst = 
+
+		}
+		std::cout << std::endl;
+		// outfile.close();
+	}
+	return message_vars;
+
+}
+
 
 std::vector <std::vector< std::string > > readStringStreamToVector( char* arg, int mode = VARMODE) {
 
@@ -246,10 +271,23 @@ int main( int argc, char** argv ) {
 				break;
 			case BITMODE:
 				std::string start_pnt;
-				if (hasPrefix_String( argv[2], "-pnt", start_pnt ))
-					convertFromBits(input_string, 513); //16914); //16897);
-				else
-					convertFromBits(input_string);
+				// std::string::size_type sz;
+				int i_dec = 513;
+				if (hasPrefix_String( argv[2], "-pnt=", start_pnt)) {
+					// int i_dec = std::stoi(start_pnt,&sz);
+					std::istringstream buffer(start_pnt);
+					buffer >> i_dec;
+					convertFromBits(input_string, i_dec); //16914); //16897);
+				}
+				else {
+					int vars[27] ={1, 2, 3, 4, 6, 8, 9, 10, 11, 12, 13, 14, 16, 18, 19, 20, 21, 22, 24, 25, 26, 27, 28, 29, 30, 31, 399};
+					std::vector<int> var_vector;
+					for (int i = 0; i < 27; i++) {
+						var_vector.push_back(vars[i]);
+					}
+					convertFromBitsWithVector(input_string, var_vector);
+				}
+	
 				break;
 		}
 
