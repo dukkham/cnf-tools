@@ -52,19 +52,6 @@ std::vector<int> convertFromBits(std::vector<std::string> message, int start_ind
 	std::vector<int> message_vars;
 
 	// std::ofstream outfile("code.alg",std::ofstream::app);
-	std::stringstream file_name;
-	
-	file_name << "test_" << file_index <<".c";
-
-    std::stringstream command_string;
-    command_string << "cp test.c " << file_name.str();
-    const std::string tmp =  std::string{command_string.str()};
-	std::system(tmp.c_str());
-
-	std::ofstream outfile(file_name.str(),std::ofstream::app);
-	if (start_index == 0) {
-		outfile << "__CPROVER_bool pr_1 = ";
-	}
 
 	for ( int i = 0; i < message.size(); i++ )
 	{
@@ -77,23 +64,90 @@ std::vector<int> convertFromBits(std::vector<std::string> message, int start_ind
 		std::cout << message_vars[i] << " 0\n"; //TODO: end_of_line_formst = 
 		// outfile << message_vars[i] << " 0\n"; //TODO: end_of_line_formst = 
 		}
-		else { // write into file(s)
-
-			std::string st = (sign < 0)?"!":"";
-			if ((i < message.size()-1)) {
-				printf("%sresult[%d]&&",(sign < 0)?"!":"",i+start_index);
-				outfile << st <<"result["<< i+start_index << "]&&";
-			}
-			else {
-				printf("%sresult[%d];\n",(sign < 0)?"!":"",i+start_index);
-				outfile << st <<"result["<< i+start_index << "];\n";
-			}
-		}	
 	} //for
 
 	std::cout << std::endl;
-	outfile << "__CPROVER_assert(pr_1 == 0, \"test1\");\n}";
+	// outfile.close();
+
+	return message_vars;
+
+}
+
+
+
+std::vector<int> convertFromBitsForCBMC(std::vector<std::string> message, int start_index = 0, int file_index = 0 )
+{
+	// xsel -b -i
+	std::vector<int> message_vars;
+
+	// std::ofstream outfile("code.alg",std::ofstream::app);
+	std::stringstream file_name;
+	
+	file_name << "test_" << file_index <<".c";
+
+	#if 0
+	    std::stringstream command_string;
+	    command_string << "cp test.c " << file_name.str();
+	    const std::string tmp =  std::string{command_string.str()};
+		std::system(tmp.c_str());
+
+
+		std::ofstream outfile(file_name.str(),std::ofstream::app);
+		
+
+		for ( int i = 0; i < message.size(); i++ )
+		{
+			int sign = ( message[i] == "0" )? -1: 1;
+			int val = ( i + start_index ) * sign;
+			// cout << "[" << i << "]"; //DEBUG
+			message_vars.push_back(val);
+
+			if (start_index == 0) {
+				std::string st = (sign < 0)?"!":"";
+				printf("__CPROVER_assume(%sreg[%d]);\n",(sign < 0)?"!":"",i+147);
+				outfile << "__CPROVER_assume(" << st <<"reg["<< i+147 << "]);\n";
+			}	
+		} //for
+
+		std::cout << std::endl;
+		//outfile << "__CPROVER_assert(pr_1 == 0, \"test1\");\n}";
 	outfile.close();
+
+
+	// #else
+	// 	std::ofstream outfile(file_name.str(),std::ofstream::app);
+	// if (start_index == 0) {
+	// 	outfile << "__CPROVER_bool pr_1 = ";
+	// }
+
+	// for ( int i = 0; i < message.size(); i++ )
+	// {
+	// 	int sign = ( message[i] == "0" )? -1: 1;
+	// 	int val = ( i + start_index ) * sign;
+	// 	// cout << "[" << i << "]"; //DEBUG
+	// 	message_vars.push_back(val);
+
+	// 	if (start_index == 0) {
+	// 	std::string st = (sign < 0)?"!":"";
+	// 	if ((i < message.size()-1)) {
+	// 		printf("%sresult[%d]&&",(sign < 0)?"!":"",i+start_index);
+	// 		outfile << st <<"result["<< i+start_index << "]&&";
+	// 	}
+	// 	else {
+	// 		printf("%sresult[%d];\n",(sign < 0)?"!":"",i+start_index);
+	// 		outfile << st <<"result["<< i+start_index << "];\n";
+	// 	}
+	// 	}	
+	// } //for
+
+	// std::cout << std::endl;
+	// outfile << "__CPROVER_assert(pr_1 == 0, \"test1\");\n}";
+	// 	outfile.close();
+
+
+	#endif
+
+
 
 	std::stringstream smt_file_name;
 	smt_file_name << "test_" << file_index <<".smt";
@@ -106,6 +160,7 @@ std::vector<int> convertFromBits(std::vector<std::string> message, int start_ind
 	return message_vars;
 
 }
+
 
 std::vector<int> convertFromBitsWithVector(std::vector<std::string> message, std::vector<int> vec)
 {
@@ -316,7 +371,10 @@ int main( int argc, char** argv ) {
 					// int i_dec = std::stoi(start_pnt,&sz);
 					std::istringstream buffer(start_pnt);
 					buffer >> i_dec;
+					if (i_dec > 0)
 					convertFromBits(input_string, i_dec,i); //16914); //16897);
+					else
+					convertFromBitsForCBMC(input_string, i_dec,i); //for cbmc tests
 				}
 				else {
 					// int vars[27] ={1, 2, 3, 4, 6, 8, 9, 10, 11, 12, 13, 14, 16, 18, 19, 20, 21, 22, 24, 25, 26, 27, 28, 29, 30, 31, 399};
