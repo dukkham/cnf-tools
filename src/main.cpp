@@ -46,24 +46,63 @@ std::vector<std::string> convertToBits(std::vector<std::string> message )
 
 }
 
-std::vector<int> convertFromBits(std::vector<std::string> message, int start_index = 1 )
+std::vector<int> convertFromBits(std::vector<std::string> message, int start_index = 1, int file_index = 0 )
 {
 	// xsel -b -i
 	std::vector<int> message_vars;
 
-	// std::ofstream outfile("code.alg");
+	// std::ofstream outfile("code.alg",std::ofstream::app);
+	std::stringstream file_name;
+	
+	file_name << "test_" << file_index <<".c";
+
+    std::stringstream command_string;
+    command_string << "cp test.c " << file_name.str();
+    const std::string tmp =  std::string{command_string.str()};
+	std::system(tmp.c_str());
+
+	std::ofstream outfile(file_name.str(),std::ofstream::app);
+	if (start_index == 0) {
+		outfile << "__CPROVER_bool pr_1 = ";
+	}
+
 	for ( int i = 0; i < message.size(); i++ )
 	{
 		int sign = ( message[i] == "0" )? -1: 1;
 		int val = ( i + start_index ) * sign;
 		// cout << "[" << i << "]"; //DEBUG
 		message_vars.push_back(val);
+
+		if (start_index != 0) {
 		std::cout << message_vars[i] << " 0\n"; //TODO: end_of_line_formst = 
 		// outfile << message_vars[i] << " 0\n"; //TODO: end_of_line_formst = 
+		}
+		else { // write into file(s)
 
-	}
+			std::string st = (sign < 0)?"!":"";
+			if ((i < message.size()-1)) {
+				printf("%sresult[%d]&&",(sign < 0)?"!":"",i+start_index);
+				outfile << st <<"result["<< i+start_index << "]&&";
+			}
+			else {
+				printf("%sresult[%d];\n",(sign < 0)?"!":"",i+start_index);
+				outfile << st <<"result["<< i+start_index << "];\n";
+			}
+		}	
+	} //for
+
 	std::cout << std::endl;
-	// outfile.close();
+	outfile << "__CPROVER_assert(pr_1 == 0, \"test1\");\n}";
+	outfile.close();
+
+	std::stringstream smt_file_name;
+	smt_file_name << "test_" << file_index <<".smt";
+
+    std::stringstream cbmc_command_string;
+    cbmc_command_string << "cbmc --z3 --outfile " << smt_file_name.str() << " "<< file_name.str() << "> out";
+    const std::string tmp_2 =  std::string{cbmc_command_string.str()};
+	std::system(tmp_2.c_str());
+
 	return message_vars;
 
 }
@@ -277,12 +316,13 @@ int main( int argc, char** argv ) {
 					// int i_dec = std::stoi(start_pnt,&sz);
 					std::istringstream buffer(start_pnt);
 					buffer >> i_dec;
-					convertFromBits(input_string, i_dec); //16914); //16897);
+					convertFromBits(input_string, i_dec,i); //16914); //16897);
 				}
 				else {
-					int vars[27] ={1, 2, 3, 4, 6, 8, 9, 10, 11, 12, 13, 14, 16, 18, 19, 20, 21, 22, 24, 25, 26, 27, 28, 29, 30, 31, 399};
+					// int vars[27] ={1, 2, 3, 4, 6, 8, 9, 10, 11, 12, 13, 14, 16, 18, 19, 20, 21, 22, 24, 25, 26, 27, 28, 29, 30, 31, 399};
+					int vars[128] ={10659, 10661, 10663, 10601, 10603, 10605, 10607, 10609, 10611, 10613, 10615, 10617, 10619, 10621, 10623, 10625, 10627, 10629, 10631, 10633, 10635, 10637, 10639, 10641, 10643, 10645, 10647, 10649, 10651, 10653, 10655, 10657, 10381, 10383, 10385, 10387, 10389, 10391, 10393, 10395, 10397, 10399, 10401, 10403, 10405, 10407, 10409, 10347, 10349, 10351, 10353, 10355, 10357, 10359, 10361, 10363, 10365, 10367, 10369, 10371, 10373, 10375, 10377, 10379, 11151, 11153, 11155, 11157, 11159, 11161, 11163, 11165, 11167, 11169, 11171, 11109, 11111, 11113, 11115, 11117, 11119, 11121, 11123, 11125, 11127, 11129, 11131, 11133, 11135, 11137, 11139, 11141, 11143, 11145, 11147, 11149, 10901, 10903, 10905, 10907, 10909, 10911, 10913, 10915, 10917, 10855, 10857, 10859, 10861, 10863, 10865, 10867, 10869, 10871, 10873, 10875, 10877, 10879, 10881, 10883, 10885, 10887, 10889, 10891, 10893, 10895, 10897, 10899};
 					std::vector<int> var_vector;
-					for (int i = 0; i < 27; i++) {
+					for (int i = 0; i < 128; i++) {
 						var_vector.push_back(vars[i]);
 					}
 					convertFromBitsWithVector(input_string, var_vector);
