@@ -89,7 +89,7 @@ std::vector<int> convertFromBitsForCBMC(std::vector<std::string> message, int st
 	    std::stringstream command_string;
 	    command_string << "cp test.c " << file_name.str();
 	    const std::string tmp =  std::string{command_string.str()};
-		std::system(tmp.c_str());
+		// std::system(tmp.c_str());
 
 
 		std::ofstream outfile(file_name.str(),std::ofstream::app);
@@ -104,8 +104,8 @@ std::vector<int> convertFromBitsForCBMC(std::vector<std::string> message, int st
 
 			if (start_index == 0) {
 				std::string st = (sign < 0)?"!":"";
-				printf("__CPROVER_assume(%sreg[%d]);\n",(sign < 0)?"!":"",i+147);
-				outfile << "__CPROVER_assume(" << st <<"reg["<< i+147 << "]);\n";
+				printf("__CPROVER_assume(%sLFSR[%d]);\n",(sign < 0)?"!":"",i);
+				outfile << "__CPROVER_assume(" << st <<"LFSR["<< i << "]);\n";
 			}	
 		} //for
 
@@ -114,7 +114,7 @@ std::vector<int> convertFromBitsForCBMC(std::vector<std::string> message, int st
 	outfile.close();
 
 
-	// #else
+	#else
 	// 	std::ofstream outfile(file_name.str(),std::ofstream::app);
 	// if (start_index == 0) {
 	// 	outfile << "__CPROVER_bool pr_1 = ";
