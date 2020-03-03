@@ -178,6 +178,7 @@ int main( int argc, char** argv ) {
     std::string file_name = argv[argc - 1];
     // SatELite_v1.0_linux - md5.cnf md5_preproc.cng var_map
 
+    //TODO check SatELite_v1
     command_prepoc << "SatELite_v1.0_linux - " << file_name << " preproc.cnf var_map";
     const std::string tmp =  std::string{command_prepoc.str()};
     system(tmp.c_str());
