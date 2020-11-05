@@ -51,7 +51,7 @@ std::vector<int> convertFromBits(std::vector<std::string> message, int start_ind
 	// xsel -b -i
 	std::vector<int> message_vars;
 
-	// std::ofstream outfile("code.alg",std::ofstream::app);
+	std::ofstream outfile("output_log",std::ofstream::out);
 
 	for ( int i = 0; i < message.size(); i++ )
 	{
@@ -62,13 +62,14 @@ std::vector<int> convertFromBits(std::vector<std::string> message, int start_ind
 
 		if (start_index != 0) {
 		std::cout << message_vars[i] << " 0\n"; //TODO: end_of_line_formst = 
-		// outfile << message_vars[i] << " 0\n"; //TODO: end_of_line_formst = 
+		outfile << message_vars[i] << " 0\n"; //TODO: end_of_line_formst = 
 		}
 	} //for
 
 	std::cout << std::endl;
-	// outfile.close();
+	outfile.close();
 
+	std::cout << "written into output_log" << std::endl;
 	return message_vars;
 
 }
@@ -310,12 +311,11 @@ int main( int argc, char** argv ) {
 		// cout << "//step "<< i+3 << " "; // For Stivens/Klima conditons
 		std::cout << "c "<< i+1 << " "; 
 		for (int j = 0; j < input_string.size(); j++)
-			std::cout << input_string[j]; // << " ";
+			std::cout << input_string[j] << " ";
 		std::cout << std::endl;
-		switch (program_mode)
-		{
-			// case MIXMODE:
 
+		switch (program_mode) {
+			// case MIXMODE:
 			// 	convertFromConditions(input_string, (i+2)%4, cond_counter++);
 			// 	break;
 			case VARMODE: 
@@ -359,9 +359,7 @@ int main( int argc, char** argv ) {
 
 					}
 					std::cout << bit_stream.str();
-
-				}
-
+				}	
 				break;
 			case BITMODE:
 				std::string start_pnt;
@@ -383,9 +381,9 @@ int main( int argc, char** argv ) {
 					for (int i = 0; i < 128; i++) {
 						var_vector.push_back(vars[i]);
 					}
+					std::cout << convertFromBitsWithVector << std::endl;
 					convertFromBitsWithVector(input_string, var_vector);
 				}
-	
 				break;
 		}
 
